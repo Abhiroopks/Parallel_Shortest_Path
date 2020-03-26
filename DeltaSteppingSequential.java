@@ -10,7 +10,7 @@ import java.util.Scanner;
 import java.util.Set;
 
 public class DeltaSteppingSequential {
-	static int delta = 3;
+	static int delta = 1;
 	static int L; //the maximum shortest path weight, let's just call it largest weight*(number of vertices-1)
 	static int n;
 	static List<Integer> tent; //array of tentative distances, index is vertex
@@ -125,24 +125,28 @@ public class DeltaSteppingSequential {
 		
 		//convert the adjacency matrix from the input file into an adjacency list
 		int vertex = 0;
-		int max = 0;
+		int max_weight = 0;
 		while (in.hasNextLine()) {
 		  String[] currentLine = in.nextLine().trim().split("\\s+"); 
 		     for (int i = 0; i < currentLine.length; i++) {
 		    	int weight = Integer.parseInt(currentLine[i]);
 		    	if (weight > 0) {
-		    		if (weight > max) max = weight;
+		    		if (weight > max_weight) max_weight = weight;
 		    		adjList.get(vertex).put(i, weight);    
 		    	}
 		     }
 		     vertex++;
 		 } 
-		L = max*(n-1);
+		L = max_weight*(n-1);
 	}
 
 	public static void main(String args[]) throws FileNotFoundException {
-		initVariables("inp.txt");
+		initVariables("output.txt");
+		long startTime = System.nanoTime();
 		findShortestPaths();
+		long endTime = System.nanoTime();
+		long timeElapsed = endTime - startTime;
+		System.out.println("Execution time in nanoseconds  : " + timeElapsed);
 		for (int i = 0; i < n; i++) {
 			System.out.println("Vertex: " + i + " Path weight: " + tent.get(i));
 		}
