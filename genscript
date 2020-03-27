@@ -1,0 +1,8 @@
+#!/bin/bash
+
+j=1
+for i in {100..1000..100}
+do
+	./generator ${i} matrix${j}.txt
+	let "j+=1"
+done

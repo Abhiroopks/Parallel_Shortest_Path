@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -29,21 +30,24 @@ public class DeltaSteppingParallel {
 	Queue<Integer> currentVertices;
 	ExecutorService threadPool;
 	ExecutorCompletionService<Void> execCompServ;
-    List<HashMap<Integer,Integer>> adjList; //index of list is vertex number, mapping is <adjacent vertex, weight>
+    	List<HashMap<Integer,Integer>> adjList; //index of list is vertex number, mapping is <adjacent vertex, weight>
 	
 	
-	public DeltaSteppingParallel() {
+	public DeltaSteppingParallel(int ncores) {
 		delta = 1;
 		L = 10; 
 		
-		threadPool = Executors.newCachedThreadPool();
+		//threadPool = Executors.newCachedThreadPool();
+		threadPool = Executors.newFixedThreadPool(ncores);
 		execCompServ = new ExecutorCompletionService<>(threadPool);
 		currentVertices = new ConcurrentLinkedQueue<>();
 		numBuckets = L/delta;
 		
 	}
 	
-	public void initVariables() {
+	public void initVariables(String filename) throws FileNotFoundException {
+		createGraph(filename);
+		
 		tent = new ConcurrentHashMap<>();
 		for (int i = 0; i < n; i++) {
 			tent.put(i, Integer.MAX_VALUE);
@@ -55,7 +59,7 @@ public class DeltaSteppingParallel {
 		}
 		buckets[0].add(0);
 	}
-	public void findShortestPaths() {
+	public void findShortestPaths() throws InterruptedException {
 		int i = 0;
 		while ((i = NotEmpty(buckets)) >= 0) {
 			Set<Integer> R = new ConcurrentSkipListSet<>();
@@ -107,7 +111,8 @@ public class DeltaSteppingParallel {
 		return reqs;
 	}
 	
-	private void relaxRequests(Map<Integer, Integer> reqs) {
+	private void relaxRequests(Map<Integer, Integer> reqs) throws InterruptedException {
+		/*
 		int numTasks = 0;
 		for (Entry<Integer, Integer> entry : reqs.entrySet()) {
 			execCompServ.submit(new Relax(entry.getKey(), entry.getValue()), null);
@@ -120,10 +125,17 @@ public class DeltaSteppingParallel {
 				e.printStackTrace();
 			}
 		}
+		*/
+		int numTasks = reqs.size();
+		List<Callable<Void>> collection = new ArrayList<>(numTasks);
+		for(Entry<Integer,Integer> entry : reqs.entrySet()){
+			collection.add(toCallable(new Relax(entry.getKey(),entry.getValue())));
+		}
+		threadPool.invokeAll(collection);
 		
 	}
 	
-	private void createGraph(String filename) throws FileNotFoundException {
+	public void createGraph(String filename) throws FileNotFoundException {
 		File inFile = new File(filename);
 		Scanner in = new Scanner(inFile);
 		
@@ -160,6 +172,37 @@ public class DeltaSteppingParallel {
 		L = max_weight*(n-1);
 	}
 	
+	private class Relax implements Runnable{
+		int w;
+		int x;
+		
+		Relax(int w, int x) {
+			this.w = w;
+			this.x = x;
+		}
+		
+		public void run() {
+			if (x < tent.get(w)) {
+				if (tent.get(w) != Integer.MAX_VALUE) {
+					buckets[tent.get(w)/delta].remove(new Integer(w));
+				} 
+				buckets[x/delta].add(new Integer(w));
+				tent.replace(w, x);
+	 		}
+		}
+	}
+
+	private Callable<Void> toCallable(final Runnable runnable) {
+	    return new Callable<Void>() {
+		@Override
+		public Void call() throws Exception {
+		    runnable.run();
+		    return null;
+		}
+	    };
+	}
+
+	/*
 	class Relax implements Runnable{
 		int w;
 		int x;
@@ -177,23 +220,36 @@ public class DeltaSteppingParallel {
 				} 
 				buckets[x/delta].add(new Integer(w));
 				tent.replace(w, x);
-	 		}	
+	 		}
 		}
 	}
-	public static void main(String args[]) throws FileNotFoundException {
-		DeltaSteppingParallel shortestPathFinder = new DeltaSteppingParallel();
-		shortestPathFinder.createGraph("output.txt");
-		shortestPathFinder.initVariables();
-		long startTime = System.nanoTime();
-		shortestPathFinder.findShortestPaths();
-		long endTime = System.nanoTime();
-		long timeElapsed = endTime - startTime;
-		System.out.println("Execution time in nanoseconds  : " + timeElapsed);
+	*/
+	public String printDistances() {
+		StringBuilder str = new StringBuilder();
 		
-		for (int i = 0; i < shortestPathFinder.n; i++) {
-			System.out.println("Vertex: " + i + " Path weight: " + shortestPathFinder.tent.get(i));
+		for(int i = 0; i < n; i++) {
+			str.append("Vertex: " + i +  " Path weight: " + tent.get(i) + "\n");			
 		}
-		int numberOfProcessors = Runtime.getRuntime().availableProcessors();
+		
+		return str.toString();
+		
+	}
+	
+	
+	
+	public static void main(String args[]) throws FileNotFoundException {
+		//DeltaSteppingParallel shortestPathFinder = new DeltaSteppingParallel();
+		//shortestPathFinder.createGraph("\\src\\inp.txt");
+		//shortestPathFinder.initVariables("\\src\\inp.txt");
+		//long startTime = System.nanoTime();
+		//shortestPathFinder.findShortestPaths();
+		//long endTime = System.nanoTime();
+		//long timeElapsed = endTime - startTime;
+		//System.out.println("Execution time in nanoseconds  : " + timeElapsed);
+		
+		//System.out.println(shortestPathFinder.printDistances());
+		
+		//int numberOfProcessors = Runtime.getRuntime().availableProcessors();
 		//System.out.println("Number of processors available to this JVM: " + numberOfProcessors);
 	}
 	

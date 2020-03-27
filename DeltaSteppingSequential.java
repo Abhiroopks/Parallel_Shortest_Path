@@ -10,14 +10,14 @@ import java.util.Scanner;
 import java.util.Set;
 
 public class DeltaSteppingSequential {
-	static int delta = 1;
-	static int L; //the maximum shortest path weight, let's just call it largest weight*(number of vertices-1)
-	static int n;
-	static List<Integer> tent; //array of tentative distances, index is vertex
-	static List<Set<Integer>> buckets; //array of buckets i.e. sets of vertices
-	static List<HashMap<Integer,Integer>> adjList; //index of list is vertex number, mapping is <adjacent vertex, weight>
+	int delta = 1;
+	int L; //the maximum shortest path weight, let's just call it largest weight*(number of vertices-1)
+	int n;
+	List<Integer> tent; //array of tentative distances, index is vertex
+	List<Set<Integer>> buckets; //array of buckets i.e. sets of vertices
+	List<HashMap<Integer,Integer>> adjList; //index of list is vertex number, mapping is <adjacent vertex, weight>
 	
-	private static List<Set<Integer>>initBuckets(){
+	private List<Set<Integer>>initBuckets(){
 		List<Set<Integer>> buckets = new ArrayList<Set<Integer>>();
 		for (int i = 0; i < L/delta; i++) {
 			buckets.add(new HashSet<Integer>());
@@ -35,13 +35,13 @@ public class DeltaSteppingSequential {
 		return tent;
 	}
 	
-	public static void initVariables(String filename) throws FileNotFoundException {
+	public void initVariables(String filename) throws FileNotFoundException {
 		createGraph(filename);
 		tent = initTent(n);
 		buckets = initBuckets();
 	}
 	
-	public static void findShortestPaths() {
+	public void findShortestPaths() {
 		int i = 0;
 		while ((i = NotEmpty(buckets)) >= 0) {
 			Set<Integer> R = new HashSet<>();
@@ -56,7 +56,7 @@ public class DeltaSteppingSequential {
 		}
 	}
 	
-	private static Integer NotEmpty(List<Set<Integer>> buckets) {
+	private Integer NotEmpty(List<Set<Integer>> buckets) {
 		for (int i = 0; i < buckets.size(); i++) {
 			if (!buckets.get(i).isEmpty()) {
 				return i;
@@ -65,7 +65,7 @@ public class DeltaSteppingSequential {
 		return -1;
 	}
 	
-	private static Map<Integer, Integer> findRequests(Set<Integer> V_prime, boolean light){
+	private Map<Integer, Integer> findRequests(Set<Integer> V_prime, boolean light){
 		Map<Integer, Integer> reqs = new HashMap<Integer,Integer>();
 		for (Integer v: V_prime) { //for each vertex in the set V_prime
 			HashMap<Integer, Integer> v_edges = adjList.get(v); //get edges incident to v from adjacency list
@@ -87,13 +87,13 @@ public class DeltaSteppingSequential {
 		return reqs;
 	}
 	
-	private static void relaxRequests(Map<Integer, Integer> reqs) {
+	private void relaxRequests(Map<Integer, Integer> reqs) {
 		for (Entry<Integer, Integer> entry : reqs.entrySet()) {
 			relax(entry.getKey(), entry.getValue());
 		}
 	}
 	
-	private static void relax(int w, int x) {
+	private void relax(int w, int x) {
 		if (x < tent.get(w)) {
 			if (tent.get(w) != Integer.MAX_VALUE) {
 				buckets.get(tent.get(w)/delta).remove(new Integer(w));
@@ -103,7 +103,8 @@ public class DeltaSteppingSequential {
  		}
 	}
 	
-	private static void createGraph(String filename) throws FileNotFoundException {
+	//returns the adjList created
+	public void createGraph(String filename) throws FileNotFoundException {
 		File inFile = new File(filename);
 		Scanner in = new Scanner(inFile);
 		
@@ -139,16 +140,26 @@ public class DeltaSteppingSequential {
 		 } 
 		L = max_weight*(n-1);
 	}
+	
+	public String printDistances() {
+		StringBuilder str = new StringBuilder();
+		
+		for(int i = 0; i < n; i++) {
+			str.append("Vertex: " + i +  " Path weight: " + tent.get(i) + "\n");			
+		}
+		
+		return str.toString();
+		
+	}
 
 	public static void main(String args[]) throws FileNotFoundException {
-		initVariables("output.txt");
-		long startTime = System.nanoTime();
-		findShortestPaths();
-		long endTime = System.nanoTime();
-		long timeElapsed = endTime - startTime;
-		System.out.println("Execution time in nanoseconds  : " + timeElapsed);
-		for (int i = 0; i < n; i++) {
-			System.out.println("Vertex: " + i + " Path weight: " + tent.get(i));
-		}
+//		initVariables("\\src\\inp.txt");
+//		long startTime = System.nanoTime();
+//		findShortestPaths();
+//		long endTime = System.nanoTime();
+//		long timeElapsed = endTime - startTime;
+//		System.out.println("Execution time in nanoseconds  : " + timeElapsed);
+//		System.out.println(printDistances());
+		
 	}
 }
