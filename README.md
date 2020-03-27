@@ -2,4 +2,11 @@
 Graph Generator Instructions:  
 Will generator a random symmetric (assuming numRows == numCols, for undirected weighted graphs) randomly sparsified adjacency matrix  
 Compilation: gcc -o generator graphGenerator.c  
-Run: ./generator <output.file> <numRows> <numCols>  
+Run: ./generator <outputfile> <numRows> <numCols> 
+
+Floyd-Warshall:  
+gcc -fopenmp FloydWarshallSequential.c -o FWS  
+./FWS <inputfile> <outputfile> <numVertices>  
+
+gcc -fopenmp FloydWarshallParallel.c -o FWP  
+./FWP <inputfile> <outputfile> <numVertices>   
