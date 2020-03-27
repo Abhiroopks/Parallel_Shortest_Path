@@ -1,12 +1,12 @@
 # EE382C_Term_Project
-##Graph Generator Instructions
+## Graph Generator Instructions
 - Will generator a random symmetric (assuming numRows == numCols, for undirected weighted graphs) randomly sparsified adjacency matrix  
 - Compile: 
 `gcc -o generator graphGenerator.c`
 - Run:
 `./generator [# vertices] [output file]`
 
-##JUnit Tests
+## JUnit Tests
 - Verifies correctness of **Delta Stepping** and **Dijkstra** parallel algorithms
 - Prints timing information for [2-256] cores and [100-1000] sized graphs
 - Compile:
@@ -20,7 +20,7 @@
 
 
 
-##Floyd-Warshall 
+## Floyd-Warshall 
 	gcc -fopenmp FloydWarshallSequential.c -o FWS  
 	./FWS <inputfile> <outputfile> <numVertices>  
 	gcc -fopenmp FloydWarshallParallel.c -o FWP  
