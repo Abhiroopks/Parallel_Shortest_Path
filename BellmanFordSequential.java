@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -11,6 +10,7 @@ public class BellmanFordSequential {
 	int edges; // # of edges
 	List<myEdge> edgesList; //list of edges
 	int[] dist; //distance of each node from node 0
+	int maxweight; //ensure no overflow
 	
 	
 	//prints min distances from node 0 to all other nodes
@@ -30,17 +30,18 @@ public class BellmanFordSequential {
 	public void findShortestPaths() {
 		int newDist;
 		
-		for(int i = 0; i < nodes - 1; i++) { //repeat V - 1 times
+		//for(int i = 0; i < nodes - 1; i++) { //repeat V - 1 times
 			
 			for(int j = 0; j < edges; j++) { //go over each edge
 				//if shorter path found to this node from src, replace it with new dist
 				
 				newDist = dist[edgesList.get(j).src] + edgesList.get(j).weight;
+
 				if(newDist < dist[edgesList.get(j).dest]) {
 					dist[edgesList.get(j).dest] = newDist;
 				}
 			}
-		} 
+		//} 
 
 	}
 		
@@ -66,12 +67,13 @@ public class BellmanFordSequential {
 		//convert the adjacency matrix from the input file into an adjacency list
 		int vertex = 0;
 		edges = 0;
-		//int max_weight = 0;
+		maxweight = 0; //keep track of max weight
 		while (in.hasNextLine()) {
 		  String[] currentLine = in.nextLine().trim().split("\\s+"); 
 		     for (int i = 0; i < currentLine.length; i++) {
 		    	int weight = Integer.parseInt(currentLine[i]);
 		    	if (weight > 0) {
+		    		if(weight > maxweight) {maxweight = weight;}
 		    		edgesList.add(new myEdge(vertex,i,weight));    //add edge to list 
 		    		edges ++;
 		    	}
@@ -89,7 +91,7 @@ public class BellmanFordSequential {
 	//	prev = new int[nodes];
 		//init the other arrays
 		for(int i = 0 ; i < nodes; i ++) {
-			dist[i] = Integer.MAX_VALUE;
+			dist[i] = Integer.MAX_VALUE - maxweight;
 			//prev[i] = -1;
 		}
 		

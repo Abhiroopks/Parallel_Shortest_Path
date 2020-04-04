@@ -59,6 +59,7 @@ public class Timings {
 		assertTrue(true);
 	}
 
+
 	@Test
 	public void testDeltaTime() throws FileNotFoundException, InterruptedException {
 		long seqAvg;
@@ -94,6 +95,52 @@ public class Timings {
 					
 					start = System.nanoTime();
 					deltaP.findShortestPaths();
+					end = System.nanoTime();
+					diff = end - start;
+					parallelAvg += diff;
+				}
+				//report timing data formatted
+				seqAvg /= iterations;
+				parallelAvg /= iterations;
+				System.out.printf("%8d%9d%18d%16d\n",V,j,seqAvg,parallelAvg);		
+			}
+		}
+
+		assertTrue(true);
+	}
+
+	@Test
+	public void testBellmanFordTime() throws FileNotFoundException, InterruptedException {
+		long seqAvg;
+		long parallelAvg;
+		long start;
+		long end;
+		long diff;
+		BellmanFordSequential bfs = new BellmanFordSequential();
+		BellmanFordParallel bfp = new BellmanFordParallel();
+		int iterations = 5;
+		System.out.println("Bellman-Ford");
+		System.out.println("Vertices    Cores    SequentialTime    ParallelTime");
+		int V;
+		//each matrix size
+		for(int i=1; i <= 10; i++){
+			V = (i-1)*100 + 100;
+			//# cores
+			for(int j = 2; j <= 256; j*=2){
+				seqAvg = 0;
+				parallelAvg = 0;
+				for(int k = 0; k < iterations; k++){
+					bfs.initVariables("matrix" + Integer.toString(i) + ".txt");
+					bfp.initVariables("matrix" + Integer.toString(i) + ".txt",j);
+		
+					start = System.nanoTime();
+					bfs.findShortestPaths();
+					end = System.nanoTime();
+					diff = end - start;
+					seqAvg += diff;
+					
+					start = System.nanoTime();
+					bfp.findShortestPaths();
 					end = System.nanoTime();
 					diff = end - start;
 					parallelAvg += diff;
