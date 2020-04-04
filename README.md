@@ -7,7 +7,7 @@
 `./generator [# vertices] [output file]`
 
 ## JUnit Tests
-- Verifies correctness of **Delta Stepping** and **Dijkstra** parallel algorithms
+- Verifies correctness of **Delta Stepping**,**Dijkstra**, and **Bellman-Ford** parallel algorithms
 - Prints timing information for [2-256] cores and [100-1000] sized graphs
 - Compile:
 `Make tests`
