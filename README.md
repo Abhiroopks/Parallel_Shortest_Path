@@ -10,7 +10,7 @@
 - Verifies correctness of **Delta Stepping**,**Dijkstra**, and **Bellman-Ford** parallel algorithms
 - Prints timing information for [2-256] cores and [100-1000] sized graphs
 - Compile:
-`Make tests`
+`make tests`
 - Check correctness:
 `make runtests` 
 - Print timing info:
@@ -21,8 +21,7 @@
 
 
 ## Floyd-Warshall 
-	gcc -fopenmp FloydWarshallSequential.c -o FWS  
-	./FWS <inputfile> <outputfile> <numVertices>  
-	gcc -fopenmp FloydWarshallParallel.c -o FWP  
-	./FWP <inputfile> <outputfile> <numVertices> 
-
+- Compile and print timing info:
+`make fws`
+`make fwp`
+- Will print times to "fwsnums.csv" and "fwpnums.csv"
