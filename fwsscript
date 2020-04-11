@@ -1,0 +1,11 @@
+#!/bin/bash
+
+for k in {1..5..1}
+do
+	j=1
+	for i in {100..1000..100}
+	do
+		./FWS matrix${j}.txt fwsoutput.txt ${i} >> fwsnums.csv
+		let "j+=1"
+	done
+done

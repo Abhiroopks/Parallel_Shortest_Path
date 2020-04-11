@@ -52,7 +52,7 @@ void findShortestPath(char ifile[], char ofile[], int n){
         }
     }
     end = omp_get_wtime();
-    printf("Time: %lf\n", end - start);
+    printf("%lf\n", (end - start)*1000);
     //print results
     for(int i = 0; i < V; ++i) {
         for(int j = 0; j <  V; ++j) {

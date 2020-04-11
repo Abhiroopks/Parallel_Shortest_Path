@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void findShortestPath(char ifile[], char ofile[], int n){
+void findShortestPath(char ifile[], char ofile[], int n, int cores){
     FILE* infile = NULL;
     FILE* outfile = NULL;
 
@@ -13,6 +13,8 @@ void findShortestPath(char ifile[], char ofile[], int n){
         exit(1);
     }
     outfile = fopen(ofile, "w");
+
+    omp_set_num_threads(cores);
 
     double start, end;
     start = omp_get_wtime();
@@ -60,7 +62,7 @@ void findShortestPath(char ifile[], char ofile[], int n){
     }
 
     end = omp_get_wtime();
-    printf("Time: %lf\n", end - start);
+    printf("%lf\n", (end - start)*1000);
     //print results
     for(int i = 0; i < V; ++i) {
         for(int j = 0; j <  V; ++j) {
@@ -76,11 +78,13 @@ void main(int argc, char *argv[]){
     char* infile = "FWinp.txt";
     char* outfile = "out.txt";
     int V = 4;
+    int cores = 1;
     if (argc > 1) {
         infile = argv[1];
         outfile = argv[2];
         V = atoi(argv[3]);
+	cores = atoi(argv[4]);
     }
-    findShortestPath(infile, outfile, V);
+    findShortestPath(infile, outfile, V,cores);
 
 }
