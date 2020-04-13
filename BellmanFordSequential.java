@@ -18,6 +18,7 @@ public class BellmanFordSequential {
 		StringBuilder str = new StringBuilder();
 		
 		for(int i = 0; i < nodes; i++) {
+			if(dist[i] == Integer.MAX_VALUE - maxweight){dist[i] += maxweight;} //remove offset
 			str.append("Vertex: " + i +  " Path weight: " + dist[i] + "\n");			
 		}
 		

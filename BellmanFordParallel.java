@@ -68,8 +68,10 @@ public class BellmanFordParallel {
 	//prints min distances from node 0 to all other nodes
 	public String printDistances() {
 		StringBuilder str = new StringBuilder();
+		int d;
 		
 		for(int i = 0; i < nodes; i++) {
+			if(dist[i] == Integer.MAX_VALUE - maxweight){dist[i] += maxweight;} //remove offset
 			str.append("Vertex: " + i +  " Path weight: " + dist[i] + "\n");			
 		}
 		
@@ -80,7 +82,9 @@ public class BellmanFordParallel {
 
 	
 	public void findShortestPaths() throws InterruptedException {
-		executorService.invokeAll(pathThreads);
+		//for(int i = 0; i < nodes-1; i++){
+			executorService.invokeAll(pathThreads);
+		//}
 		executorService.shutdown();
 
 	}
