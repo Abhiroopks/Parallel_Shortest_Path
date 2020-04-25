@@ -5,7 +5,9 @@
 `make graphs`
 
 - To make custom graph:
+
 `gcc -o generator graphGenerator.c`
+
 `./generator [# vertices] [output file]`
 
 ## JUnit Tests
@@ -30,6 +32,8 @@
 - Check correctness: (Will save to resultscheck.txt)
 `./checkC`
 - Timing info: (Will save to individual csv files)
+
 `./timesC`
+
 `./timesFWR` (Separate script for Floyd-Warshall Recursive Parallel due to extremely long time to complete)
 
