@@ -16,6 +16,19 @@ public class DeltaSteppingSequential {
 	List<Integer> tent; //array of tentative distances, index is vertex
 	List<Set<Integer>> buckets; //array of buckets i.e. sets of vertices
 	List<HashMap<Integer,Integer>> adjList; //index of list is vertex number, mapping is <adjacent vertex, weight>
+	int[] prev;
+
+	
+	//used to keep track of source,dest of reqs
+	private class edge{
+		int src;
+		int dest;
+
+		edge(int s, int d){
+			this.src = s;
+			this.dest = d;
+		}
+	}
 	
 	private List<Set<Integer>>initBuckets(){
 		List<Set<Integer>> buckets = new ArrayList<Set<Integer>>();
@@ -39,6 +52,10 @@ public class DeltaSteppingSequential {
 		createGraph(filename);
 		tent = initTent(n);
 		buckets = initBuckets();
+		prev = new int[n];
+		for(int i = 0; i < n ; i++){
+			prev[i] = -1;
+		}
 	}
 	
 	public void findShortestPaths() {
@@ -46,12 +63,13 @@ public class DeltaSteppingSequential {
 		while ((i = NotEmpty(buckets)) >= 0) {
 			Set<Integer> R = new HashSet<>();
 			while (!buckets.get(i).isEmpty()) {
-				Map<Integer, Integer> reqs = findRequests(buckets.get(i), true);
+				//Map<Integer, Integer> reqs = findRequests(buckets.get(i), true);
+				Map<edge, Integer> reqs = findRequests(buckets.get(i), true);
 				R.addAll(buckets.get(i));
 				buckets.get(i).clear();
 				relaxRequests(reqs);
 			}
-			Map<Integer, Integer> reqs = findRequests(R, false);
+			Map<edge, Integer> reqs = findRequests(R, false);
 			relaxRequests(reqs);
 		}
 	}
@@ -65,8 +83,8 @@ public class DeltaSteppingSequential {
 		return -1;
 	}
 	
-	private Map<Integer, Integer> findRequests(Set<Integer> V_prime, boolean light){
-		Map<Integer, Integer> reqs = new HashMap<Integer,Integer>();
+	private Map<edge, Integer> findRequests(Set<Integer> V_prime, boolean light){
+		Map<edge, Integer> reqs = new HashMap<edge,Integer>();
 		for (Integer v: V_prime) { //for each vertex in the set V_prime
 			HashMap<Integer, Integer> v_edges = adjList.get(v); //get edges incident to v from adjacency list
 			for (Entry<Integer, Integer> entry : v_edges.entrySet()) {//for each edge incident to v
@@ -74,11 +92,11 @@ public class DeltaSteppingSequential {
 				Integer d = entry.getValue(); //weight for edge (v,w)
 				if (light) {
 					if (d <= delta) {
-						reqs.put(w, tent.get(v) + d);
+						reqs.put(new edge(v,w), tent.get(v) + d);
 					}
 				} else { //heavy
 					if (d > delta) {
-						reqs.put(w, tent.get(v) + d);
+						reqs.put(new edge(v,w), tent.get(v) + d);
 					}
 				}
 				
@@ -87,19 +105,20 @@ public class DeltaSteppingSequential {
 		return reqs;
 	}
 	
-	private void relaxRequests(Map<Integer, Integer> reqs) {
-		for (Entry<Integer, Integer> entry : reqs.entrySet()) {
+	private void relaxRequests(Map<edge, Integer> reqs) {
+		for (Entry<edge, Integer> entry : reqs.entrySet()) {
 			relax(entry.getKey(), entry.getValue());
 		}
 	}
 	
-	private void relax(int w, int x) {
-		if (x < tent.get(w)) {
-			if (tent.get(w) != Integer.MAX_VALUE) {
-				buckets.get(tent.get(w)/delta).remove(new Integer(w));
+	private void relax(edge e, int x) {
+		if (x < tent.get(e.dest)) {
+			if (tent.get(e.dest) != Integer.MAX_VALUE) {
+				buckets.get(tent.get(e.dest)/delta).remove(new Integer(e.dest));
 			} 
-			buckets.get(x/delta).add(new Integer(w));
-			tent.set(w, x);
+			buckets.get(x/delta).add(new Integer(e.dest));
+			tent.set(e.dest, x);
+			prev[e.dest] = e.src;
  		}
 	}
 	
@@ -141,6 +160,31 @@ public class DeltaSteppingSequential {
 		L = max_weight*(n-1);
 	}
 	
+	
+	//will show the paths from node0 to all other nodes, if reachable
+	public String printPaths() {
+		
+		String sequence;
+		Integer dest;
+		Integer curr;
+		StringBuilder str = new StringBuilder();
+		
+		for(dest = 1; dest < n; dest++) {
+			sequence = "";
+			curr = dest; //save copy
+			if(prev[dest] >= 0) { //if reachable
+				while(curr > 0) {
+					sequence = " -> " + curr.toString() + sequence;
+					curr = prev[curr]; //backtrack one node
+				}
+				sequence = "0" + sequence;
+				str.append(sequence + "\n");	
+			}
+		}
+		
+		return str.toString();
+	}
+
 	public String printDistances() {
 		StringBuilder str = new StringBuilder();
 		

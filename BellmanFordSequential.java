@@ -10,6 +10,7 @@ public class BellmanFordSequential {
 	int edges; // # of edges
 	List<myEdge> edgesList; //list of edges
 	int[] dist; //distance of each node from node 0
+	int[] prev; //distance of each node from node 0
 	int maxweight; //ensure no overflow
 	
 	
@@ -27,11 +28,34 @@ public class BellmanFordSequential {
 	}
 	
 
+	//will show the paths from node0 to all other nodes, if reachable
+	public String printPaths() {
+		
+		String sequence;
+		Integer dest;
+		Integer curr;
+		StringBuilder str = new StringBuilder();
+		
+		for(dest = 1; dest < nodes; dest++) {
+			sequence = "";
+			curr = dest; //save copy
+			if(prev[dest] >= 0) { //if reachable
+				while(curr > 0) {
+					sequence = " -> " + curr.toString() + sequence;
+					curr = prev[curr]; //backtrack one node
+				}
+				sequence = "0" + sequence;
+				str.append(sequence + "\n");	
+			}
+		}
+		
+		return str.toString();
+	}
 	
 	public void findShortestPaths() {
 		int newDist;
 		
-		//for(int i = 0; i < nodes - 1; i++) { //repeat V - 1 times
+		for(int i = 0; i < nodes - 1; i++) { //repeat V - 1 times
 			
 			for(int j = 0; j < edges; j++) { //go over each edge
 				//if shorter path found to this node from src, replace it with new dist
@@ -40,9 +64,10 @@ public class BellmanFordSequential {
 
 				if(newDist < dist[edgesList.get(j).dest]) {
 					dist[edgesList.get(j).dest] = newDist;
+					prev[edgesList.get(j).dest] = edgesList.get(j).src;
 				}
 			}
-		//} 
+		} 
 
 	}
 		
@@ -89,11 +114,11 @@ public class BellmanFordSequential {
 	public void initVariables(String filename) throws FileNotFoundException {
 		createGraph(filename);
 		dist = new int[nodes];
-	//	prev = new int[nodes];
+		prev = new int[nodes];
 		//init the other arrays
 		for(int i = 0 ; i < nodes; i ++) {
 			dist[i] = Integer.MAX_VALUE - maxweight;
-			//prev[i] = -1;
+			prev[i] = -1;
 		}
 		
 		dist[0] = 0;	

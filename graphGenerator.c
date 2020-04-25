@@ -40,10 +40,10 @@ void main(int argc, char *argv[]) {
 
 	for (int i = 0; i < numV; ++i) {
 		for (int j = i; j < numV; ++j) {
-			int num = rand()%2;
-			if (num == 0) {
-				matrix[i][j] = num;
-				matrix[j][i] = num;
+			int num = rand()%10;
+			if (num < 5 || i == j) {
+				matrix[i][j] = 0;
+				matrix[j][i] = 0;
 			}
 		}
 	}

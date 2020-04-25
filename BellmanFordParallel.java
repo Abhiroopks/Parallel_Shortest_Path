@@ -6,6 +6,7 @@ import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class BellmanFordParallel {
 	
@@ -13,6 +14,7 @@ public class BellmanFordParallel {
 	int edges; // # of edges
 	List<myEdge> edgesList; //list of edges
 	Integer[] dist; //distance of each node from node 0
+	int[] prev;
 	int maxweight; //ensure no overflow
 	
 	//For path findi
@@ -22,6 +24,9 @@ public class BellmanFordParallel {
 	List<BFThread> pathThreads = new ArrayList<BFThread>();
 	//will run the threads
 	ExecutorService executorService; 
+	// locks for concurrent writes
+	ReentrantLock[] locks;
+	
 
 	
 	private class BFThread implements Callable<Void>{
@@ -47,18 +52,18 @@ public class BellmanFordParallel {
 			//go thru all edges I am responsible for, within bounds
 			for(int i = startEdge; i <= endEdge && i < edges; i++) { 
 				
-				synchronized(dist[edgesList.get(i).src]) {
-					newDist = dist[edgesList.get(i).src] + edgesList.get(i).weight;
+				newDist = dist[edgesList.get(i).src] + edgesList.get(i).weight;
+				//no need to update, go to next edge
+				if(newDist >= dist[edgesList.get(i).dest]){
+					continue;
 				}
-				synchronized(dist[edgesList.get(i).dest]) {
-						if(newDist < dist[edgesList.get(i).dest]) {
-							dist[edgesList.get(i).dest] = newDist;
-						}
-				}
-				
-
+				//need to update, so lock the destination vertex
+			//	locks[edgesList.get(i).dest].lock();
+				dist[edgesList.get(i).dest] = newDist;
+				prev[edgesList.get(i).dest] = edgesList.get(i).src;
+			//	locks[edgesList.get(i).dest].unlock();
 			}
-			
+				
 			
 			return null;
 		}
@@ -80,11 +85,34 @@ public class BellmanFordParallel {
 	}
 	
 
+	//will show the paths from node0 to all other nodes, if reachable
+	public String printPaths() {
+		
+		String sequence;
+		Integer dest;
+		Integer curr;
+		StringBuilder str = new StringBuilder();
+		
+		for(dest = 1; dest < nodes; dest++) {
+			sequence = "";
+			curr = dest; //save copy
+			if(prev[dest] >= 0) { //if reachable
+				while(curr > 0) {
+					sequence = " -> " + curr.toString() + sequence;
+					curr = prev[curr]; //backtrack one node
+				}
+				sequence = "0" + sequence;
+				str.append(sequence + "\n");	
+			}
+		}
+		
+		return str.toString();
+	}
 	
 	public void findShortestPaths() throws InterruptedException {
-		//for(int i = 0; i < nodes-1; i++){
+		for(int i = 0; i < nodes-1; i++){
 			executorService.invokeAll(pathThreads);
-		//}
+		}
 		executorService.shutdown();
 
 	}
@@ -132,8 +160,12 @@ public class BellmanFordParallel {
 	public void initVariables(String filename, int cores) throws FileNotFoundException {
 		createGraph(filename);
 		dist = new Integer[nodes];
+		prev = new int[nodes];
+		//locks = new ReentrantLock[nodes];
 		for(int i = 0 ; i < nodes; i ++) {
 			dist[i] = new Integer(Integer.MAX_VALUE - maxweight);
+			prev[i] = -1;
+		//	locks[i] = new ReentrantLock();
 		}
 		
 		dist[0] = 0;	
@@ -156,6 +188,7 @@ public class BellmanFordParallel {
 		for(int i = 0; i < cores; i ++) {
 			pathThreads.add(new BFThread(i));
 		}
+		
 
 		
 		

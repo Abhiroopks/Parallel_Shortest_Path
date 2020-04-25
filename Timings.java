@@ -123,7 +123,7 @@ public class Timings {
 		System.out.println("Vertices    Cores    SequentialTime    ParallelTime");
 		int V;
 		//each matrix size
-		for(int i=1; i <= 10; i++){
+		for(int i=10; i <= 10; i++){
 			V = (i-1)*100 + 100;
 			//# cores
 			for(int j = 2; j <= 256; j*=2){

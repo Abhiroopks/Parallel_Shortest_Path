@@ -1,18 +1,23 @@
-tests:
-	gcc -o generator graphGenerator.c
-	javac -cp .:junit-4.12.jar:hamcrest-core-1.3.jar *.java
+graphs:
+	gcc -o generator.o graphGenerator.c
 	./genscript
+testsC:
+	
+	gcc -fopenmp FloydWarshallParallel.c -o FloydWarshallParallel.o
+	gcc -fopenmp FloydWarshallSequential.c -o FloydWarshallSequential.o
+	gcc -fopenmp FloydWarshallRecursiveParallel.c -o FloydWarshallRecursiveParallel.o
+	gcc -fopenmp DijkstraSeq.c -o DijkstraSequential.o
+	gcc -fopenmp DijkstraParallel.c -o DijkstraParallel.o
+	gcc -fopenmp BellmanFordSeq.c -o BellmanFordSequential.o
+	gcc -fopenmp BellmanFordParallel.c -o BellmanFordParallel.o
+
+testsJ:
+	javac -cp .:junit-4.12.jar:hamcrest-core-1.3.jar *.java
 
 clean:
-	rm *.class matrix* generator FWS FWP
+	rm *.class *.o *.txt
 
-runtimes:
+runtimesJ:
 	java -cp .:junit-4.12.jar:hamcrest-core-1.3.jar org.junit.runner.JUnitCore Timings
-runtests:
+runtestsJ:
 	java -cp .:junit-4.12.jar:hamcrest-core-1.3.jar org.junit.runner.JUnitCore Tests
-fwp:
-	gcc -fopenmp FloydWarshallParallel.c -o FWP
-	./fwpscript
-fws:
-	gcc -fopenmp FloydWarshallSequential.c -o FWS
-	./fwsscript

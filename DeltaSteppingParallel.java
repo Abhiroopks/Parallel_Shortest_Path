@@ -31,8 +31,42 @@ public class DeltaSteppingParallel {
 	ExecutorService threadPool;
 	ExecutorCompletionService<Void> execCompServ;
     	List<HashMap<Integer,Integer>> adjList; //index of list is vertex number, mapping is <adjacent vertex, weight>
+	int[] prev;
 	
+	//used to keep track of source,dest of reqs
+	private class edge{
+		int src;
+		int dest;
+
+		edge(int s, int d){
+			this.src = s;
+			this.dest = d;
+		}
+	}
 	
+	//will show the paths from node0 to all other nodes, if reachable
+	public String printPaths() {
+		
+		String sequence;
+		Integer dest;
+		Integer curr;
+		StringBuilder str = new StringBuilder();
+		
+		for(dest = 1; dest < n; dest++) {
+			sequence = "";
+			curr = dest; //save copy
+			if(prev[dest] >= 0) { //if reachable
+				while(curr > 0) {
+					sequence = " -> " + curr.toString() + sequence;
+					curr = prev[curr]; //backtrack one node
+				}
+				sequence = "0" + sequence;
+				str.append(sequence + "\n");	
+			}
+		}
+		
+		return str.toString();
+	}
 	public DeltaSteppingParallel(int ncores) {
 		delta = 1;
 		L = 10; 
@@ -49,8 +83,10 @@ public class DeltaSteppingParallel {
 		createGraph(filename);
 		
 		tent = new ConcurrentHashMap<>();
+		prev = new int[n];
 		for (int i = 0; i < n; i++) {
 			tent.put(i, Integer.MAX_VALUE);
+			prev[i] = -1;
 		}
 		tent.replace(0, 0);
 		buckets = new Set[numBuckets];
@@ -58,19 +94,20 @@ public class DeltaSteppingParallel {
 			buckets[i] = new ConcurrentSkipListSet<Integer>();
 		}
 		buckets[0].add(0);
+
 	}
 	public void findShortestPaths() throws InterruptedException {
 		int i = 0;
 		while ((i = NotEmpty(buckets)) >= 0) {
 			Set<Integer> R = new ConcurrentSkipListSet<>();
 			while (!buckets[i].isEmpty()) {
-				Map<Integer, Integer> reqs = findRequests(buckets[i], true);
+				Map<edge, Integer> reqs = findRequests(buckets[i], true);
 				R = (Set<Integer>) buckets[i].parallelStream().collect(Collectors.toSet());
 				//R.addAll(buckets[i]);
 				buckets[i].clear();
 				relaxRequests(reqs);
 			}
-			Map<Integer, Integer> reqs = findRequests(R, false);
+			Map<edge, Integer> reqs = findRequests(R, false);
 			relaxRequests(reqs);
 		}
         threadPool.shutdown();
@@ -91,12 +128,12 @@ public class DeltaSteppingParallel {
 		return -1;
 	}
 	
-	private Map<Integer, Integer> findRequests(Set<Integer> V_prime, boolean light){
-		Map<Integer, Integer> reqs = new ConcurrentHashMap<Integer,Integer>();
+	private Map<edge, Integer> findRequests(Set<Integer> V_prime, boolean light){
+		Map<edge, Integer> reqs = new ConcurrentHashMap<edge,Integer>();
 		if (light) {
 			V_prime.parallelStream().forEach(v->{reqs.putAll(adjList.get(v).entrySet().parallelStream().filter(entry->entry.getValue() <= delta)
 			.collect(Collectors.toMap(
-				entry -> entry.getKey(),
+				entry -> new edge(v,entry.getKey()),
 				entry -> entry.getValue() + tent.get(v))));});
 //				V_prime.parallelStream().flatMap(v->adjList.get(v).entrySet().stream()).filter(entry->entry.getValue() <= delta)
 //				.collect(Collectors.mapping(
@@ -105,13 +142,13 @@ public class DeltaSteppingParallel {
 		} else {
 			V_prime.parallelStream().forEach(v->{reqs.putAll(adjList.get(v).entrySet().parallelStream().filter(entry->entry.getValue() > delta)
 			.collect(Collectors.toMap(
-				entry -> entry.getKey(),
+				entry -> new edge(v,entry.getKey()),
 				entry -> entry.getValue() + tent.get(v))));});
 		}
 		return reqs;
 	}
 	
-	private void relaxRequests(Map<Integer, Integer> reqs) throws InterruptedException {
+	private void relaxRequests(Map<edge, Integer> reqs) throws InterruptedException {
 		/*
 		int numTasks = 0;
 		for (Entry<Integer, Integer> entry : reqs.entrySet()) {
@@ -128,7 +165,7 @@ public class DeltaSteppingParallel {
 		*/
 		int numTasks = reqs.size();
 		List<Callable<Void>> collection = new ArrayList<>(numTasks);
-		for(Entry<Integer,Integer> entry : reqs.entrySet()){
+		for(Entry<edge,Integer> entry : reqs.entrySet()){
 			collection.add(toCallable(new Relax(entry.getKey(),entry.getValue())));
 		}
 		threadPool.invokeAll(collection);
@@ -173,21 +210,22 @@ public class DeltaSteppingParallel {
 	}
 	
 	private class Relax implements Runnable{
-		int w;
+		edge e;
 		int x;
 		
-		Relax(int w, int x) {
-			this.w = w;
+		Relax(edge e, int x) {
+			this.e = e;
 			this.x = x;
 		}
 		
 		public void run() {
-			if (x < tent.get(w)) {
-				if (tent.get(w) != Integer.MAX_VALUE) {
-					buckets[tent.get(w)/delta].remove(new Integer(w));
+			if (x < tent.get(e.dest)) {
+				if (tent.get(e.dest) != Integer.MAX_VALUE) {
+					buckets[tent.get(e.dest)/delta].remove(new Integer(e.dest));
 				} 
-				buckets[x/delta].add(new Integer(w));
-				tent.replace(w, x);
+				buckets[x/delta].add(new Integer(e.dest));
+				tent.replace(e.dest, x);
+				prev[e.dest] = e.src;
 	 		}
 		}
 	}

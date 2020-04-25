@@ -1,0 +1,56 @@
+#!/bin/bash
+
+FOUT="resultscheck.txt"
+
+# Just run Dijkstra Sequential and Parallel and check the outputs are same
+./DijkstraParallel.o matrix10.txt DIJPoutput.txt 1000 16 > /dev/null 2>&1
+./DijkstraSequential.o matrix10.txt DIJSoutput.txt 1000 > /dev/null 2>&1
+
+# create new empty output file
+> $FOUT
+
+if diff DIJPoutput.txt DIJSoutput.txt > /dev/null ; then
+	echo "Dijkstra Passes" >> $FOUT
+else
+	echo "Dijkstra Fails" >> $FOUT
+fi
+
+
+# Just run BellmanFord Sequential and Parallel and check the outputs are same
+./BellmanFordParallel.o matrix10.txt BFPoutput.txt 1000 16 > /dev/null 2>&1
+./BellmanFordSequential.o matrix10.txt BFSoutput.txt 1000 > /dev/null 2>&1
+
+if diff BFPoutput.txt BFSoutput.txt > /dev/null ; then
+	echo "Bellman-Ford Passes" >> $FOUT
+else
+	echo "Bellman-Ford Fails" >> $FOUT
+fi
+
+
+if diff BFPoutput.txt DIJPoutput.txt > /dev/null ; then
+	echo "Bellman-Ford , Dijkstra Passes" >> $FOUT
+else
+	echo "Bellman-Ford , Dijkstra Fails" >> $FOUT
+fi
+
+
+# Just run Floyd-Warshall Sequential, Recursive, and Parallel and check the outputs are same
+# RecursiveParallel version only works with graphs that have V = Power of 2
+./FloydWarshallParallel.o matrix256.txt FWPoutput.txt 256 256 > /dev/null 2>&1
+./FloydWarshallSequential.o matrix256.txt FWSoutput.txt 256 > /dev/null 2>&1
+./FloydWarshallRecursiveParallel.o matrix256.txt FWRoutput.txt 256 8 64 > /dev/null 2>&1
+
+
+if diff FWPoutput.txt FWSoutput.txt > /dev/null ; then
+	if diff FWPoutput.txt FWRoutput.txt > /dev/null ; then
+		echo "Floyd-Warshall Passes" >> $FOUT
+	else
+		echo "Floyd-Warshall Fails" >> $FOUT
+	fi
+else
+	echo "Floyd-Warshall Fails" >> $FOUT
+fi
+
+
+
+

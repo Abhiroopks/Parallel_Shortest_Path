@@ -7,10 +7,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+int basecase;
 
 void FWSequential(int** dist,int Arow,int Acol,int Brow,int Bcol, int Crow, int Ccol, int n) {
     for (int a_k = Acol, b_k = Brow; a_k < Acol + n; a_k++, b_k++) {
-#pragma omp parallel for
+//#pragma omp parallel for
         for (int c_j = Ccol, b_j = Bcol; b_j < Bcol+n; c_j++, b_j++) {
             for (int c_i = Crow, a_i = Arow; a_i < Arow + n; c_i++, a_i++) {
                 if (dist[c_i][c_j] > dist[a_i][a_k] + dist[b_k][b_j])
@@ -25,7 +26,7 @@ void FWSequential(int** dist,int Arow,int Acol,int Brow,int Bcol, int Crow, int 
 //A22 = Arow+1/2,Acol+1/2,
 
 void FWRecursive(int** dist, int Arow,int Acol,int Brow,int Bcol, int Crow, int Ccol, int n) {
-    if (n <= 64) {
+    if (n <= basecase) {
         FWSequential(dist, Arow, Acol, Brow, Bcol, Crow, Ccol, n);
     } else {
 //From: Parallelizing the Floyd-Warshall Algorithm on Modern Multicore Platforms: Lessons Learned  paper
@@ -59,7 +60,7 @@ void FWRecursive(int** dist, int Arow,int Acol,int Brow,int Bcol, int Crow, int 
     }
 }
 
-void findShortestPath(char ifile[], char ofile[], int n){
+void findShortestPath(char ifile[], char ofile[], int n, int cores){
     FILE* infile = NULL;
     FILE* outfile = NULL;
 
@@ -71,6 +72,7 @@ void findShortestPath(char ifile[], char ofile[], int n){
     outfile = fopen(ofile, "w");
 
     double start, end;
+    omp_set_num_threads(cores);
     start = omp_get_wtime();
     //set up the graph
     int V = n;
@@ -84,9 +86,12 @@ void findShortestPath(char ifile[], char ofile[], int n){
 
     //    //initialize distances
     int** dist = (int**) malloc(V* sizeof(int*));
+
     for (int i = 0; i < V; i++){
         dist[i] = (int*) malloc(V* sizeof(int));
     }
+
+#pragma omp parallel for
     for (int i = 0; i < V; i++) {
         for (int j = 0; j < V; j++) {
             if (graph[i][j] != 0) {
@@ -97,6 +102,7 @@ void findShortestPath(char ifile[], char ofile[], int n){
         }
     }
 
+#pragma omp parallel for
     for (int i = 0; i < V; i++) {
         dist[i][i] = 0;
     }
@@ -123,11 +129,14 @@ void main(int argc, char *argv[]){
     char* infile = "FWinp.txt";
     char* outfile = "out.txt";
     int V = 4;
+    int cores = 2;
     if (argc > 1) {
         infile = argv[1];
         outfile = argv[2];
         V = atoi(argv[3]);
+	cores = atoi(argv[4]);
+	basecase = atoi(argv[5]);
     }
-    findShortestPath(infile, outfile, V);
+    findShortestPath(infile, outfile, V,cores);
 
 }

@@ -44,7 +44,7 @@ public class DijkstraSeq {
 					curr = prev[curr]; //backtrack one node
 				}
 				sequence = "0" + sequence;
-				str.append(sequence);	
+				str.append(sequence + "\n");	
 			}
 		}
 		
