@@ -2,58 +2,63 @@
 #/
 
 if [ -f bin/matrix1.txt ]; then
-	echo "Please note: This script takes a long time to run!"
+	echo "Please note: This script takes ~ 25 mins to run"
 else 
 	echo "Please make graphs first!"
 	exit 1
 fi
 
+if [ -d results/times ]; then
+	:
+else 
+	mkdir -p results
+	mkdir -p results/times
+fi
 
 # Clear files
-> results/times/DIJPnums.csv
-> results/times/BFPnums.csv
-> results/times/DIJSnums.csv
-> results/times/BFSnums.csv
-> results/times/FWPnums.csv
-> results/times/FWSnums.csv
+echo "sample threads size time" > results/times/DIJPnums.csv
+echo "sample threads size time" > results/times/BFPnums.csv
+echo "sample threads size time" > results/times/DIJSnums.csv
+echo "sample size time" > results/times/BFSnums.csv
+echo "sample size time" > results/times/FWPnums.csv
+echo "sample size time" > results/times/FWSnums.csv
 
 
 
 echo "Running parallel tests.."
-# Get 5 samples
-for k in {1..5..1}
+
+
+# 2-256 cores (powers of 2 only)
+let "c=2"
+while ((c <= 256))
 do
-	j=1
-	c=2
-	# 2-256 cores (powers of 2 only)
-	while ((c <= 256))
-	do
-		# 100-1000 size graphs (increment by 100)
-		for i in {100..1000..100}
-		do
-			bin/DijkstraParallel.o bin/matrix${j}.txt results/DIJPoutput.txt ${i} ${c} >> results/times/DIJPnums.csv
-			bin/BellmanFordParallel.o bin/matrix${j}.txt results/BFPoutput.txt ${i} ${c} >> results/times/BFPnums.csv
-			bin/FloydWarshallParallel.o bin/matrix${j}.txt results/FWSoutput.txt ${i} ${c} >> results/times/FWPnums.csv
-			let "j+=1"
-		done
-		let "c*=2"
-		let j=1
-	done
-done
-
-
-
-echo "Running sequential tests.."
-for k in {1..5..1}
-do
-	let j=1
+	let "j=1"
+	# 100-1000 size graphs (increment by 100)
 	for i in {100..1000..100}
 	do
-		bin/DijkstraSequential.o bin/matrix${j}.txt results/DIJSoutput.txt ${i} >> results/times/DIJSnums.csv
-		bin/BellmanFordSequential.o bin/matrix${j}.txt results/BFSoutput.txt ${i} >> results/times/BFSnums.csv
-		bin/FloydWarshallSequential.o bin/matrix${j}.txt results/FWSoutput.txt ${i} >> results/times/FWSnums.csv
+		for k in {1..5..1}
+		do
+			echo "$k $c $i $(bin/DijkstraParallel.o bin/matrix${j}.txt results/DIJPoutput.txt ${i} ${c})" >> results/times/DIJPnums.csv
+			echo "$k $c $i $(bin/BellmanFordParallel.o bin/matrix${j}.txt results/BFPoutput.txt ${i} ${c})" >> results/times/BFPnums.csv
+			echo "$k $c $i $(bin/FloydWarshallParallel.o bin/matrix${j}.txt results/FWPoutput.txt ${i} ${c})" >> results/times/FWPnums.csv
+		done
 		let "j+=1"
 	done
+	let "c*=2"
+done
+
+echo "Running sequential tests.."
+
+let "j=1"
+for i in {100..1000..100}
+do
+	for k in {1..5..1}
+	do
+		echo "$k $i $(bin/DijkstraSequential.o bin/matrix${j}.txt results/DIJSoutput.txt ${i})" >> results/times/DIJSnums.csv
+		echo "$k $i $(bin/BellmanFordSequential.o bin/matrix${j}.txt results/BFSoutput.txt ${i})" >> results/times/BFSnums.csv
+		echo "$k $i $(bin/FloydWarshallSequential.o bin/matrix${j}.txt results/FWSoutput.txt ${i})" >> results/times/FWSnums.csv
+	done
+	let "j+=1"
 done
 
 echo "Results saved to results/times/ directory"

@@ -7,7 +7,14 @@ else
 	exit 1
 fi
 
-> results/times/FWRnums.csv
+if [ -d results/times ]; then
+	:
+else 
+	mkdir -p results
+	mkdir -p results/times
+fi
+
+echo "threads size time "> results/times/FWRnums.csv
 
 let "c=2"
 let "i=128"
@@ -22,7 +29,7 @@ do
 		let "j=2";
 		while ((j <= i)) 
 		do
-			bin/FloydWarshallRecursiveParallel.o bin/matrix${i}.txt results/FWRoutput.txt ${i} ${c} ${j} >> results/times/FWRnums.csv
+			echo "$c $i $(bin/FloydWarshallRecursiveParallel.o bin/matrix${i}.txt results/FWRoutput.txt ${i} ${c} ${j})" >> results/times/FWRnums.csv
 			let "j*=2"
 		done
 		let "i*=2"
