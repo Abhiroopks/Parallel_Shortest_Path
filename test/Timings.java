@@ -27,7 +27,7 @@ public class Timings {
 			//create the graph once and use for each iteration below
 			dijS = new DijkstraSeq();
 			dijP = new DijkstraParallel();
-			adjList = dijS.createGraph("matrix" + Integer.toString(i) + ".txt");
+			adjList = dijS.createGraph("bin/matrix" + Integer.toString(i) + ".txt");
 			V = (i-1)*100 + 100;
 			//# cores
 			for(int j = 2; j <= 256; j*=2){
@@ -84,8 +84,8 @@ public class Timings {
 				for(int k = 0; k < iterations; k++){
 					deltaS = new DeltaSteppingSequential();
 					deltaP = new DeltaSteppingParallel(j);
-					deltaS.initVariables("matrix" + Integer.toString(i) + ".txt");
-					deltaP.initVariables("matrix" + Integer.toString(i) + ".txt");
+					deltaS.initVariables("bin/matrix" + Integer.toString(i) + ".txt");
+					deltaP.initVariables("bin/matrix" + Integer.toString(i) + ".txt");
 		
 					start = System.nanoTime();
 					deltaS.findShortestPaths();
@@ -130,8 +130,8 @@ public class Timings {
 				seqAvg = 0;
 				parallelAvg = 0;
 				for(int k = 0; k < iterations; k++){
-					bfs.initVariables("matrix" + Integer.toString(i) + ".txt");
-					bfp.initVariables("matrix" + Integer.toString(i) + ".txt",j);
+					bfs.initVariables("bin/matrix" + Integer.toString(i) + ".txt");
+					bfp.initVariables("bin/matrix" + Integer.toString(i) + ".txt",j);
 		
 					start = System.nanoTime();
 					bfs.findShortestPaths();

@@ -1,0 +1,68 @@
+#!/bin/bash
+
+if [ -f bin/matrix1.txt ]; then
+	:
+else 
+	echo "Please make graphs first!"
+	exit 1
+fi
+
+
+FOUT="results/checkres.txt"
+
+
+echo "Running Dijkstra Tests.."
+# Just run Dijkstra Sequential and Parallel and check the outputs are same
+bin/DijkstraParallel.o bin/matrix10.txt results/DIJPoutput.txt 1000 16 > /dev/null 2>&1
+bin/DijkstraSequential.o bin/matrix10.txt results/DIJSoutput.txt 1000 > /dev/null 2>&1
+
+# create new empty output file
+> $FOUT
+
+if diff results/DIJPoutput.txt results/DIJSoutput.txt > /dev/null ; then
+	echo "Dijkstra Passes" >> $FOUT
+else
+	echo "Dijkstra Fails" >> $FOUT
+fi
+
+echo "Running BellmanFord Tests.."
+# Just run BellmanFord Sequential and Parallel and check the outputs are same
+bin/BellmanFordParallel.o bin/matrix10.txt results/BFPoutput.txt 1000 16 > /dev/null 2>&1
+bin/BellmanFordSequential.o bin/matrix10.txt results/BFSoutput.txt 1000 > /dev/null 2>&1
+
+if diff results/BFPoutput.txt results/BFSoutput.txt > /dev/null ; then
+	echo "Bellman-Ford Passes" >> $FOUT
+else
+	echo "Bellman-Ford Fails" >> $FOUT
+fi
+
+
+if diff results/BFPoutput.txt results/DIJPoutput.txt > /dev/null ; then
+	echo "Bellman-Ford,Dijkstra Comparison Passes" >> $FOUT
+else
+	echo "Bellman-Ford,Dijkstra Comparison Fails" >> $FOUT
+fi
+
+
+
+echo "Running FloydWarshall Tests.."
+# Just run Floyd-Warshall Sequential, Recursive, and Parallel and check the outputs are same
+# RecursiveParallel version only works with graphs that have V = Power of 2
+bin/FloydWarshallParallel.o bin/matrix256.txt results/FWPoutput.txt 256 256 > /dev/null 2>&1
+bin/FloydWarshallSequential.o bin/matrix256.txt results/FWSoutput.txt 256 > /dev/null 2>&1
+bin/FloydWarshallRecursiveParallel.o bin/matrix256.txt results/FWRoutput.txt 256 8 64 > /dev/null 2>&1
+
+
+if diff results/FWPoutput.txt results/FWSoutput.txt > /dev/null ; then
+	if diff results/FWPoutput.txt results/FWRoutput.txt > /dev/null ; then
+		echo "Floyd-Warshall Passes" >> $FOUT
+	else
+		echo "Floyd-Warshall Fails" >> $FOUT
+	fi
+else
+	echo "Floyd-Warshall Fails" >> $FOUT
+fi
+
+cat $FOUT
+echo "Results also saved to $FOUT"
+

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+if [ -f bin/matrix1.txt ]; then
+	echo "Please note: This script takes a VERY long time to run! (~ 12 hours)"
+else 
+	echo "Please make graphs first!"
+	exit 1
+fi
+
+> results/times/FWRnums.csv
+
+let "c=2"
+let "i=128"
+let "j=2"
+
+echo "Running tests.."
+while ((c <= 256))
+do
+	let "i=128"
+	while ((i <= 2048))
+	do
+		let "j=2";
+		while ((j <= i)) 
+		do
+			bin/FloydWarshallRecursiveParallel.o bin/matrix${i}.txt results/FWRoutput.txt ${i} ${c} ${j} >> results/times/FWRnums.csv
+			let "j*=2"
+		done
+		let "i*=2"
+	done
+	let "c*=2"
+done
+
+echo "Results saved to results/times/FWRnums.csv"

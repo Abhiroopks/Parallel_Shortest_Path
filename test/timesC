@@ -1,0 +1,59 @@
+#!/bin/bash
+#/
+
+if [ -f bin/matrix1.txt ]; then
+	echo "Please note: This script takes a long time to run!"
+else 
+	echo "Please make graphs first!"
+	exit 1
+fi
+
+
+# Clear files
+> results/times/DIJPnums.csv
+> results/times/BFPnums.csv
+> results/times/DIJSnums.csv
+> results/times/BFSnums.csv
+> results/times/FWPnums.csv
+> results/times/FWSnums.csv
+
+
+
+echo "Running parallel tests.."
+# Get 5 samples
+for k in {1..5..1}
+do
+	j=1
+	c=2
+	# 2-256 cores (powers of 2 only)
+	while ((c <= 256))
+	do
+		# 100-1000 size graphs (increment by 100)
+		for i in {100..1000..100}
+		do
+			bin/DijkstraParallel.o bin/matrix${j}.txt results/DIJPoutput.txt ${i} ${c} >> results/times/DIJPnums.csv
+			bin/BellmanFordParallel.o bin/matrix${j}.txt results/BFPoutput.txt ${i} ${c} >> results/times/BFPnums.csv
+			bin/FloydWarshallParallel.o bin/matrix${j}.txt results/FWSoutput.txt ${i} ${c} >> results/times/FWPnums.csv
+			let "j+=1"
+		done
+		let "c*=2"
+		let j=1
+	done
+done
+
+
+
+echo "Running sequential tests.."
+for k in {1..5..1}
+do
+	let j=1
+	for i in {100..1000..100}
+	do
+		bin/DijkstraSequential.o bin/matrix${j}.txt results/DIJSoutput.txt ${i} >> results/times/DIJSnums.csv
+		bin/BellmanFordSequential.o bin/matrix${j}.txt results/BFSoutput.txt ${i} >> results/times/BFSnums.csv
+		bin/FloydWarshallSequential.o bin/matrix${j}.txt results/FWSoutput.txt ${i} >> results/times/FWSnums.csv
+		let "j+=1"
+	done
+done
+
+echo "Results saved to results/times/ directory"

@@ -6,9 +6,9 @@
 
 - To make custom graph:
 
-`gcc -o generator graphGenerator.c`
+`gcc -o bin/generator test/graphGenerator.c`
 
-`./generator [# vertices] [output file]`
+`sh bin/generator [# vertices] [output file]`
 
 ## JUnit Tests
 - Verifies correctness of **Delta Stepping**,**Dijkstra**, and **Bellman-Ford** parallel algorithms
@@ -18,9 +18,9 @@
 - Check correctness:
 `make runtestsJ` 
 - Print timing info:
-`make runtimesJ`
+`make runtimesJ > [output file]`
 
-## Clean directory:
+## Delete binaries,graphs:
 `make clean`
 
 ## C Tests
@@ -29,11 +29,11 @@
 - Note that Floyd-Warshall Recursive Parallel only works with graphs that have V = Power of 2
 - Compile:
 `make testsC`
-- Check correctness: (Will save to resultscheck.txt)
-`./checkC`
-- Timing info: (Will save to individual csv files)
+- Check correctness: (Will save to results/checkres.txt)
+`sh test/checkC`
+- Timing info: (Will save to individual csv files in results/times directory)
 
-`./timesC`
+`sh test/timesC`
 
-`./timesFWR` (Separate script for Floyd-Warshall Recursive Parallel due to extremely long time to complete)
+`sh test/timesFWR` (Separate script for Floyd-Warshall Recursive Parallel due to extremely long time to complete)
 

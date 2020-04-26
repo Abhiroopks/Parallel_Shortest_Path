@@ -9,7 +9,7 @@ import org.junit.Test;
 
 public class Tests {
 
-	String testFile = "matrix0.txt";
+	String testFile = "bin/matrix1.txt";
 
 	@Test
 	public void testDijkstra() throws FileNotFoundException, InterruptedException {

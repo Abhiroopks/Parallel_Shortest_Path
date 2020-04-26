@@ -1,23 +1,23 @@
 graphs:
-	gcc -o generator.o graphGenerator.c
-	./genscript
+	gcc -o bin/generator.o test/graphGenerator.c
+	sh  test/genscript
 testsC:
 	
-	gcc -fopenmp FloydWarshallParallel.c -o FloydWarshallParallel.o
-	gcc -fopenmp FloydWarshallSequential.c -o FloydWarshallSequential.o
-	gcc -fopenmp FloydWarshallRecursiveParallel.c -o FloydWarshallRecursiveParallel.o
-	gcc -fopenmp DijkstraSeq.c -o DijkstraSequential.o
-	gcc -fopenmp DijkstraParallel.c -o DijkstraParallel.o
-	gcc -fopenmp BellmanFordSeq.c -o BellmanFordSequential.o
-	gcc -fopenmp BellmanFordParallel.c -o BellmanFordParallel.o
+	gcc -fopenmp src/floydwarshall/FloydWarshallParallel.c -o bin/FloydWarshallParallel.o
+	gcc -fopenmp src/floydwarshall/FloydWarshallSequential.c -o bin/FloydWarshallSequential.o
+	gcc -fopenmp src/floydwarshall/FloydWarshallRecursiveParallel.c -o bin/FloydWarshallRecursiveParallel.o
+	gcc -fopenmp src/dijkstra/DijkstraSeq.c -o bin/DijkstraSequential.o
+	gcc -fopenmp src/dijkstra/DijkstraParallel.c -o bin/DijkstraParallel.o
+	gcc -fopenmp src/bellmanford/BellmanFordSeq.c -o bin/BellmanFordSequential.o
+	gcc -fopenmp src/bellmanford/BellmanFordParallel.c -o bin/BellmanFordParallel.o
 
 testsJ:
-	javac -cp .:junit-4.12.jar:hamcrest-core-1.3.jar *.java
+	javac -cp .:test/junit-4.12.jar:test/hamcrest-core-1.3.jar:src/dijkstra/:src/deltastepping:src/bellmanford test/*.java -d bin/
 
 clean:
-	rm *.class *.o *.txt
+	rm  bin/*
 
 runtimesJ:
-	java -cp .:junit-4.12.jar:hamcrest-core-1.3.jar org.junit.runner.JUnitCore Timings
+	java -cp .:test/junit-4.12.jar:test/hamcrest-core-1.3.jar:bin/ org.junit.runner.JUnitCore Timings
 runtestsJ:
-	java -cp .:junit-4.12.jar:hamcrest-core-1.3.jar org.junit.runner.JUnitCore Tests
+	java -cp .:test/junit-4.12.jar:test/hamcrest-core-1.3.jar:bin/ org.junit.runner.JUnitCore Tests
