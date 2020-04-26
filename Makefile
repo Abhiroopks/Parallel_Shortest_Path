@@ -1,8 +1,9 @@
 graphs:
+	mkdir -p bin
 	gcc -o bin/generator.o test/graphGenerator.c
 	sh  test/genscript
 testsC:
-	
+	mkdir -p bin
 	gcc -fopenmp src/floydwarshall/FloydWarshallParallel.c -o bin/FloydWarshallParallel.o
 	gcc -fopenmp src/floydwarshall/FloydWarshallSequential.c -o bin/FloydWarshallSequential.o
 	gcc -fopenmp src/floydwarshall/FloydWarshallRecursiveParallel.c -o bin/FloydWarshallRecursiveParallel.o
@@ -12,6 +13,7 @@ testsC:
 	gcc -fopenmp src/bellmanford/BellmanFordParallel.c -o bin/BellmanFordParallel.o
 
 testsJ:
+	mkdir -p bin
 	javac -cp .:test/junit-4.12.jar:test/hamcrest-core-1.3.jar:src/dijkstra/:src/deltastepping:src/bellmanford test/*.java -d bin/
 
 clean:
