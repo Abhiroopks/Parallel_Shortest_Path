@@ -6,7 +6,7 @@
 
 - To make custom graph:
 
-`gcc -o bin/generator test/graphGenerator.c`
+`gcc -o generator test/graphGenerator.c`
 
 `sh bin/generator [# vertices] [output file]`
 
