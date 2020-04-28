@@ -40,7 +40,7 @@
 - Prints timing information for [2-256] cores and [100-1000] sizes graphs
 - Note that Floyd-Warshall Recursive Parallel only works with graphs that have V = Power of 2
 - Compile:
-  - `make testsC
+  - `make testsC`
 - Check correctness: (Will save to results/checkres.txt)
   - `sh test/checkC`
 - Timing info: (Will save to individual csv files in results/times directory)
