@@ -7,6 +7,12 @@ else
 	exit 1
 fi
 
+if [ -d results ]; then
+	:
+else 
+	mkdir -p results
+fi
+
 
 FOUT="results/checkres.txt"
 
