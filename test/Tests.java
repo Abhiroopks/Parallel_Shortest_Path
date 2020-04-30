@@ -34,8 +34,8 @@ public class Tests {
 		
 		if(!(dijS.printPaths().equals(dijP.printPaths()))){
 			System.out.println("Note: Dijkstra Seq , Parallel paths differ");
-			System.out.println("Dijkstra Sequential Paths:\n" + dijS.printPaths());
-			System.out.println("Dijkstra Parallel Paths:\n" + dijP.printPaths());
+			//System.out.println("Dijkstra Sequential Paths:\n" + dijS.printPaths());
+			//System.out.println("Dijkstra Parallel Paths:\n" + dijP.printPaths());
 
 		}
 	}
@@ -54,8 +54,8 @@ public class Tests {
 		
 		if(!(deltaS.printPaths().equals(deltaP.printPaths()))){
 			System.out.println("Note: Delta-Stepping Seq, Parallel paths differ");
-			System.out.println("Delta-Stepping Sequential Paths:\n" + deltaS.printPaths());
-			System.out.println("Delta-Stepping Parallel Paths:\n" + deltaP.printPaths());
+			//System.out.println("Delta-Stepping Sequential Paths:\n" + deltaS.printPaths());
+			//System.out.println("Delta-Stepping Parallel Paths:\n" + deltaP.printPaths());
 		}
 		
 		
@@ -74,8 +74,8 @@ public class Tests {
 		assertEquals(bfs.printDistances(),bfp.printDistances());
 		if(!(bfs.printPaths().equals(bfp.printPaths()))){
 			System.out.println("Note: Bellman-Ford Seq, Parallel paths differ");
-			System.out.println("Bellman-Ford Sequential Paths:\n" + bfs.printPaths());
-			System.out.println("Bellman-Ford Parallel Paths:\n" + bfp.printPaths());
+			//System.out.println("Bellman-Ford Sequential Paths:\n" + bfs.printPaths());
+			//System.out.println("Bellman-Ford Parallel Paths:\n" + bfp.printPaths());
 		}
 		
 	}
@@ -94,8 +94,8 @@ public class Tests {
 		assertEquals(dijP.printDistances(),deltaP.printDistances());
 		if(!(dijP.printPaths().equals(deltaP.printPaths()))){
 			System.out.println("Note: Dijkstra, Delta-Stepping paths differ");
-			System.out.println("Delta-Stepping Parallel Paths:\n" + deltaP.printPaths());
-			System.out.println("Dijkstra Parallel Paths:\n" + dijP.printPaths());
+			//System.out.println("Delta-Stepping Parallel Paths:\n" + deltaP.printPaths());
+			//System.out.println("Dijkstra Parallel Paths:\n" + dijP.printPaths());
 		}
 	}
 
@@ -113,8 +113,8 @@ public class Tests {
 
 		if(!(bfp.printPaths().equals(deltaP.printPaths()))){
 			System.out.println("Note: Bellman-Ford, Delta-Stepping paths differ");
-			System.out.println("Delta-Stepping Parallel Paths:\n" + deltaP.printPaths());
-			System.out.println("Bellman-Ford Parallel Paths:\n" + bfp.printPaths());
+			//System.out.println("Delta-Stepping Parallel Paths:\n" + deltaP.printPaths());
+			//System.out.println("Bellman-Ford Parallel Paths:\n" + bfp.printPaths());
 		}
 	}
 }
