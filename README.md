@@ -1,4 +1,5 @@
 # EE382C_Term_Project
+Authors: Abhiroop Kodandapursanjeeva and Muhammed Mohaimin Sadiq
 
 ## Project Description
 - Several minimum path finding algorithms for graphs are parallelized and tested for correctness and time performance
